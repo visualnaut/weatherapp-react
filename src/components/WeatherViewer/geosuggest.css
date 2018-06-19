@@ -1,0 +1,68 @@
+.geosuggest {
+  position: absolute;
+  z-index: 9;
+  top: 12px;
+  left: 12px;
+}
+
+.geosuggest__input {
+  width: 340px;
+  border: none;
+  margin: 0 auto;
+  display: block;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 4px;
+  background: rgba(0,0,0,.25);
+  color: white
+}
+
+.geosuggest__input::placeholder {
+  color: rgba(255,255,255, .5)
+}
+
+.geosuggest__suggests-wrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 9;
+}
+
+.geosuggest__suggests {
+  list-style: none;
+  padding: 0;
+  background: rgba(0, 0, 0, .7);
+  backdrop-filter: blur(10px);
+  color: white;
+  border-radius: 4px
+}
+
+.geosuggest__suggests li {
+  padding: 10px 16px;
+  border-bottom: thin solid rgba(0,0,0,.2);
+  cursor: pointer;
+  transition: all .2s;
+  font-size: 14px
+}
+
+.geosuggest__suggests li:first-child {
+  border-radius: 4px 4px 0 0
+}
+
+.geosuggest__suggests li:last-child {
+  border-radius: 0 0 4px 4px
+}
+
+.geosuggest__suggests li:hover {
+  background: rgba(255,255,255, .2);
+}
+
+.geosuggest__suggests li:last-child {
+  border-bottom: none
+}
+
+.geosuggest__suggests--hidden {
+  max-height: 0;
+  overflow: hidden;
+  border-width: 0;
+}

@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import WeatherIcon from 'react-icons-weather';
+import WeatherViewer from '../WeatherViewer';
+import LocationInput from '../WeatherViewer/LocationInput';
+import WeatherForecastItem from '../WeatherForecastItem';
+import axios from 'axios';
 import './App.css';
 
 const WeatherWrapper = styled.section `
@@ -10,64 +13,7 @@ const WeatherWrapper = styled.section `
   border-radius: 8px;
   box-shadow: 0px 8px 32px rgba(0,0,0,.1);
   background: white;
-`
-const InputCity = styled.input `
-  width: 340px;
-  margin: 0 auto;
-  display: block;
-  border-radius: 4px;
-  background: rgba(0,0,0,.15);
-  padding: 8px;
-  border: none;
-  font-size: 14px;
-  color: white;
-  &::placeholder {
-    color: rgba(255,255,255,.5)
-  }
-`
-const WeatherBackground = styled.section`
-  width: 380px;
-  height: 350px;
-  padding-top: 14px;
-  margin: 0 auto;
-  border-radius: 8px 8px 0 0;
-  clip-path: circle(95% at 50% 0);
-  background: ${
-    props => props.morning ? 'linear-gradient(to top, #ff5f6d, #ffc371)'
-    : props.sunny ? 'linear-gradient(to top, #36d1dc, #5b86e5)' 
-    : props.dark ? 'linear-gradient(to top, #2980b9, #2c3e50)'
-    : 'teal'
-  };
-`
-const LocationTitle = styled.h4 `
-  padding: 20px 0 10px 0;
-  margin: 0;
-  color: white;
-  text-shadow: 0 1px 1px rgba(0,0,0,.1);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-size: 16px;
-  opacity: .9;
-  text-align: center;
-  font-weight: 900;
-`
-const WeatherInfo = styled.h1 `
-  padding: 0 20px;
-  color: white;
-  text-shadow: 0 1px 1px rgba(0,0,0,.1);
-  margin: 0;
-  text-align: center;
-`
-const TempText = styled.h1 `
-  padding: 0;
-  font-family: 'Quicksand', sans-serif;
-  color: white;
-  font-weight: bolder;
-  font-size: 80px;
-  margin: 0;
-  text-align: center;
-  display: inline-block;
-  margin-left: 20px
+  position: relative
 `
 const WeatherForecastWrapper = styled.ul `
   list-style: none;
@@ -75,75 +21,116 @@ const WeatherForecastWrapper = styled.ul `
   padding: 0;
   margin: 10px 0;
 `
-const WeatherForecastItem = styled.li `
-  display: inline-block;
-  padding: 0 20px;
-  border-right: thin solid #f5f5f5;
-  &:last-child {
-    border: none;
-  }
-  h4 {
-    color: #aaa;
-    text-transform: uppercase;
-    font-size: 14px;
-    text-align: center;
-    letter-spacing: 2px
-  }
-`
-const WeatherItemIcon = styled.div `
-  width: 80px;
-  height: 80px;
-  background: #f5f5f5;
-  border-radius: 50%;
-`
-const WeatherMainIconWrapper = styled.div `
-  width: 100%;
-  font-size: 80px;
-  text-align: center;
-  padding: 60px 0 20px;
-  color: white;
-  opacity: .9
-`
-
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { 
+      ip: '',
+      latitude: '',
+      longitude: '',
+      data: '',
+      temp: '~',
+      location: 'Loading',
+      wdesc: 'Please Wait',
+      icid: "721",
+      fcast: ''
+    }
+  }
+
+  componentWillMount() {
+
+    // Get location using window navigator geolocation
+    let location = window.navigator && window.navigator.geolocation
+    if (location) {
+      location.getCurrentPosition((position) => {
+        this.setState({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        })
+      }, (error) => {
+        // If fail, get location based on IP address
+        axios.get('https://ipinfo.io/json')
+        .then(res => {
+          let location = res.data.loc.split(',')
+          this.setState({
+            ip: res.ip,
+            latitude: location[0],
+            longitude: location[1]
+          })
+        })
+        //Still error? bad luck
+        .catch(error => {
+          console.log(error);
+        })
+      })
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // check previous state
+    if (
+      this.state.latitude !== '' &&
+      this.state.longitude !== '' &&
+      this.state.latitude !== undefined &&
+      this.state.longitude !== undefined &&
+      prevState.latitude !== this.state.latitude &&
+      prevState.longitude !== this.state.longitude
+    ) {
+      axios({
+        method: 'get',
+        url: 'http://api.openweathermap.org/data/2.5/weather',
+        params: {
+          lat: this.state.latitude,
+          lon: this.state.longitude,
+          units: 'metric',
+          type: 'accurate',
+          appid: 'f54350a13f034d154042b786b8992594'
+        }
+      })
+        .then(res => {
+          this.setState({
+            temp: Math.round(res.data.main.temp * 10) / 10,
+            location: res.data.name + " , " + res.data.sys.country,
+            wdesc: res.data.weather[0].main,
+            icid:  res.data.weather[0].id.toString()
+          })
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  }
+  
+  handleChangeLocation(suggest) {
+    this.setState({
+      latitude: suggest.location.lat,
+      longitude: suggest.location.lng,
+    })
+  }
+
+  handleLabel() {
+    if (this.state.location !== '' && this.state.location !== undefined) {
+      return this.state.location
+    } else {
+      return `${this.state.data.location}`
+    }
+  }
+
   render() {
     return (
       <div className='wrapper'>
         <WeatherWrapper>
-          <WeatherBackground sunny>
-            <InputCity placeholder="Enter city name" />
-            <WeatherMainIconWrapper>
-              <WeatherIcon name="owm" iconId="602" />
-              <TempText>
-                21&deg;
-              </TempText>
-            </WeatherMainIconWrapper>
-            <LocationTitle>
-              Bandung, Indonesia
-            </LocationTitle>
-            <WeatherInfo>
-              Partly Sunny
-            </WeatherInfo>
-          </WeatherBackground>
-          <WeatherForecastWrapper>
-            <WeatherForecastItem>
-              <h4>Tue</h4>
-              <WeatherItemIcon></WeatherItemIcon>
-              <h2>20&deg;</h2>
-            </WeatherForecastItem>
-            <WeatherForecastItem>
-              <h4>Wed</h4>
-              <WeatherItemIcon></WeatherItemIcon>
-              <h2>19&deg;</h2>
-            </WeatherForecastItem>
-            <WeatherForecastItem>
-              <h4>Thu</h4>
-              <WeatherItemIcon>
-                <WeatherIcon name="owm" iconId="602" />
-              </WeatherItemIcon>
-              <h2>23&deg;</h2>
-            </WeatherForecastItem>
-          </WeatherForecastWrapper>
+          <LocationInput handleChangeLocation={this.handleChangeLocation.bind(this)} />
+          <WeatherViewer
+            temp={this.state.temp}
+            icid={this.state.icid}
+            location={this.state.location}
+            winfo={this.state.wdesc} />
+          {/* <WeatherForecastWrapper>
+            <WeatherForecastItem day="13:00" temp="12" icid="200" />
+            <WeatherForecastItem day="13:00" temp="12" icid="200" />
+            <WeatherForecastItem day="13:00" temp="12" icid="200" />
+          </WeatherForecastWrapper> */}
         </WeatherWrapper>
       </div>
     );

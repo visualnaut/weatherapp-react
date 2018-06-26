@@ -59,7 +59,7 @@ const WeatherMainIconWrapper = styled.div `
 class WeatherViewer extends Component {
   render() { 
     return (
-      <WeatherBackground morning>
+      <WeatherBackground sunny>
         <WeatherMainIconWrapper>
           <WeatherIcon name="owm" iconId={this.props.icid} />
           <TempText>

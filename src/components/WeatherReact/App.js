@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import WeatherViewer from '../WeatherViewer';
 import LocationInput from '../WeatherViewer/LocationInput';
-import WeatherForecastItem from '../WeatherForecastItem';
 import axios from 'axios';
 import './App.css';
 
@@ -14,12 +13,6 @@ const WeatherWrapper = styled.section `
   box-shadow: 0px 8px 32px rgba(0,0,0,.1);
   background: white;
   position: relative
-`
-const WeatherForecastWrapper = styled.ul `
-  list-style: none;
-  text-align: center;
-  padding: 0;
-  margin: 10px 0;
 `
 class App extends Component {
   constructor(props) {
@@ -102,10 +95,12 @@ class App extends Component {
   }
   
   handleChangeLocation(suggest) {
-    this.setState({
-      latitude: suggest.location.lat,
-      longitude: suggest.location.lng,
-    })
+    if(suggest !== undefined){
+      this.setState({
+        latitude: suggest.location.lat,
+        longitude: suggest.location.lng,
+      })
+    }
   }
 
   handleLabel() {
@@ -126,11 +121,6 @@ class App extends Component {
             icid={this.state.icid}
             location={this.state.location}
             winfo={this.state.wdesc} />
-          {/* <WeatherForecastWrapper>
-            <WeatherForecastItem day="13:00" temp="12" icid="200" />
-            <WeatherForecastItem day="13:00" temp="12" icid="200" />
-            <WeatherForecastItem day="13:00" temp="12" icid="200" />
-          </WeatherForecastWrapper> */}
         </WeatherWrapper>
       </div>
     );

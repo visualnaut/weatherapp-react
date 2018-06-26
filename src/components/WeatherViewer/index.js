@@ -11,10 +11,10 @@ const WeatherBackground = styled.section `
   clip-path: circle(95% at 50% 0);
   position: relative;
   background: ${
-    props => props.morning ? 'linear-gradient(to top, #ff5f6d, #ffc371)'
-    : props.sunny ? 'linear-gradient(to top, #36d1dc, #5b86e5)' 
-    : props.dark ? 'linear-gradient(to top, #2980b9, #2c3e50)'
-    : 'teal'
+    props => props.time === "morning" ? 'linear-gradient(to top, #ff5f6d, #ffc371)'
+    : props.time === "afternoon" ? 'linear-gradient(to top, #36d1dc, #5b86e5)' 
+    : props.time === "evening" ? 'linear-gradient(to top, #2980b9, #2c3e50)'
+    : 'tomato'
   };
 `
 const LocationTitle = styled.h4 `
@@ -59,7 +59,7 @@ const WeatherMainIconWrapper = styled.div `
 class WeatherViewer extends Component {
   render() { 
     return (
-      <WeatherBackground sunny>
+      <WeatherBackground time={this.props.time}>
         <WeatherMainIconWrapper>
           <WeatherIcon name="owm" iconId={this.props.icid} />
           <TempText>

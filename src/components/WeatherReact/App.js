@@ -26,7 +26,8 @@ class App extends Component {
       location: 'Loading',
       wdesc: 'Please Wait',
       icid: "721",
-      fcast: ''
+      fcast: '',
+      time: ''
     }
   }
 
@@ -55,6 +56,23 @@ class App extends Component {
         .catch(error => {
           console.log(error);
         })
+      })
+    }
+
+    let today = new Date()
+    let curHr = today.getHours()
+
+    if (curHr < 12) {
+      this.setState({
+        time: "morning"
+      })
+    } else if (curHr < 18) {
+      this.setState({
+        time: "afternoon"
+      })
+    } else {
+      this.setState({
+        time: "evening"
       })
     }
   }
@@ -117,6 +135,7 @@ class App extends Component {
         <WeatherWrapper>
           <LocationInput handleChangeLocation={this.handleChangeLocation.bind(this)} />
           <WeatherViewer
+            time={this.state.time}
             temp={this.state.temp}
             icid={this.state.icid}
             location={this.state.location}
